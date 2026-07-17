@@ -471,7 +471,7 @@ function animateStroke(path, tip, token, color){
       path.style.strokeDasharray = "none";
       resolve(); return;
     }
-    const dur = Math.min(Math.max(len * 16, 750), 2100);
+    const dur = Math.min(Math.max(len * 30, 1400), 4200);
     path.style.strokeDasharray = len + " " + len;
     path.style.strokeDashoffset = len;
     tip.setAttribute("visibility","visible");
@@ -535,7 +535,7 @@ async function playLetter(i, token){
     note(520 + s*60, 0, 0.15, 0.1);
     await animateStroke(paths[s], tip, token, color);
     if(token !== runToken) return;
-    await wait(reduceMotion ? 500 : 300, token);
+    await wait(reduceMotion ? 500 : 600, token);
     if(token !== runToken) return;
   }
   // celebrate! the letter does a happy dance
