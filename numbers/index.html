@@ -234,25 +234,30 @@ const DIGITS = {
  "9":["M40 46 C40 26 11 24 10 45 C9 63 39 65 40 47 L40 78 C40 97 24 101 13 92"]
 };
 const DW = 42, GAP = 8, CX0 = 22, MIDY = 57.5;
+// widen digits horizontally so a number reads as boldly as a capital letter
+const WX = 1.18;
+const DWe = DW * WX;
 
 /* build the ordered stroke list + transform data for a whole number */
 function buildNumber(n){
   const s = String(n);
   const D = s.length;
-  const f = Math.min(1, 82 / (D*DW + (D-1)*GAP));
-  const T = f*(D*DW + (D-1)*GAP);
+  const f = Math.min(1, 84 / (D*DWe + (D-1)*GAP));
+  const T = f*(D*DWe + (D-1)*GAP);
   const startLeft = 50 - T/2;
   const strokes = [];
   for(let i=0;i<D;i++){
-    const cx = startLeft + f*DW*(i+0.5) + f*GAP*i;
+    const cx = startLeft + f*DWe*(i+0.5) + f*GAP*i;
     DIGITS[s[i]].forEach(d=>{
       strokes.push({ d, cx, f });
     });
   }
   return strokes;
 }
-// map a point in a digit's local coords to board coords
-function mapPt(p, cx, f){ return { x: cx + f*(p.x - CX0), y: MIDY + f*(p.y - MIDY) }; }
+// map a point in a digit's local coords to board coords (x widened by WX)
+function mapPt(p, cx, f){ return { x: cx + f*WX*(p.x - CX0), y: MIDY + f*(p.y - MIDY) }; }
+// the transform applied to each digit's path
+function digitTransform(cx, f){ return `translate(${cx} ${MIDY}) scale(${f*WX} ${f}) translate(${-CX0} ${-MIDY})`; }
 
 /* ---------- number words 0..100 ---------- */
 const ONES=["zero","one","two","three","four","five","six","seven","eight","nine","ten",
@@ -389,7 +394,7 @@ function setupNumber(n){
   const strokes=buildNumber(n);
   // ghost
   strokes.forEach(st=>{
-    board.appendChild(el("path",{d:st.d, transform:`translate(${st.cx} ${MIDY}) scale(${st.f}) translate(${-CX0} ${-MIDY})`,
+    board.appendChild(el("path",{d:st.d, transform:digitTransform(st.cx, st.f),
       fill:"none", stroke:css("--ghost"), "stroke-width":8, "vector-effect":"non-scaling-stroke",
       "stroke-linecap":"round","stroke-linejoin":"round","stroke-dasharray":"0.5 12","opacity":.9}));
   });
@@ -397,7 +402,7 @@ function setupNumber(n){
   const liveG=el("g",{}); board.appendChild(liveG);
   const paths=[];
   strokes.forEach(st=>{
-    const p=el("path",{d:st.d, transform:`translate(${st.cx} ${MIDY}) scale(${st.f}) translate(${-CX0} ${-MIDY})`,
+    const p=el("path",{d:st.d, transform:digitTransform(st.cx, st.f),
       fill:"none", stroke:color, "stroke-width":9, "vector-effect":"non-scaling-stroke",
       "stroke-linecap":"round","stroke-linejoin":"round"});
     liveG.appendChild(p);
