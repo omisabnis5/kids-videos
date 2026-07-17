@@ -10,7 +10,7 @@ The homepage shows a **tile grid**; tapping a tile opens that lesson full-screen
 | Tile | Page | Path |
 |------|------|------|
 | 🔤 ABC Alphabets | Watch a friendly crayon draw every capital letter A–Z | [`/alphabets/`](alphabets/) |
-| 🔢 123 Numbers | _coming soon_ | — |
+| 🔢 123 Numbers | Draw & count numbers over a range you choose (1–10, 1–20, 1–30, 1–50, or custom) | [`/numbers/`](numbers/) |
 | 🔺 Shapes | _coming soon_ | — |
 | 🌈 Colors | _coming soon_ | — |
 
