@@ -599,10 +599,10 @@ function traceTurn(i, token){
   return new Promise(resolve=>{
     const { L, paths, tip, color } = setupLetter(i);
     tip.setAttribute("visibility","hidden");           // no crayon buddy — the child is the crayon now
-    const perStroke = paths.map(p=>({ len:p.getTotalLength(), maxL:0 }));
+    const perStroke = paths.map(p=>({ len:p.getTotalLength(), maxL:0, total:0, hits:0 }));
     const samples = buildSamples(paths);
-    const total = samples.length;
-    let hits = 0, drawing = false, trail = null, lastBlip = 0, finished = false, done = false;
+    samples.forEach(s=> perStroke[s.si].total++);
+    let drawing = false, trail = null, lastBlip = 0, finished = false, done = false;
 
     banner.innerHTML = `<span class="pop-in">✏️ Your turn! Trace the <b style="color:${color}">${L.ch}</b> with your finger</span>`;
     say(`Now you try. Trace the ${L.ch} with your finger.`);
@@ -616,14 +616,15 @@ function traceTurn(i, token){
       return { x:p.x, y:p.y };
     }
     function process(x, y){
-      const R2 = 8*8;                                   // big, forgiving hit radius for little fingers
+      const R2 = 7*7;                                   // forgiving for little fingers, but they must be on the letter
       let newHit = false;
       for(const s of samples){
         if(s.hit) continue;
         const dx = s.x - x, dy = s.y - y;
         if(dx*dx + dy*dy <= R2){
-          s.hit = true; hits++; newHit = true;
-          if(s.l > perStroke[s.si].maxL) perStroke[s.si].maxL = s.l;
+          s.hit = true; newHit = true;
+          const ps = perStroke[s.si]; ps.hits++;
+          if(s.l > ps.maxL) ps.maxL = s.l;
           sparkleAt(s.x, s.y, color);
         }
       }
@@ -632,7 +633,8 @@ function traceTurn(i, token){
         perStroke.forEach((ps, si)=>{ paths[si].style.strokeDashoffset = String(Math.max(ps.len - ps.maxL, 0)); });
         const now = performance.now();
         if(now - lastBlip > 90){ blip(); lastBlip = now; }
-        if(!finished && hits/total >= 0.62){ finished = true; success(); }
+        // finish only when EVERY stroke is mostly traced, so multi-stroke letters need all their strokes
+        if(!finished && perStroke.every(ps=> ps.hits / ps.total >= 0.85)){ finished = true; success(); }
       }
     }
     function addTrailPoint(x, y){
