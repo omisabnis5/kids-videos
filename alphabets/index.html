@@ -389,10 +389,7 @@ function pickVoice(){
 }
 if("speechSynthesis" in window){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
 
-/* keep the speech engine awake so long lines are never truncated (Chrome pause/resume trick) */
-let keepAlive = null;
-function startKeepAlive(){ if(keepAlive) return; keepAlive = setInterval(()=>{ try{ if(speechSynthesis.speaking){ speechSynthesis.pause(); speechSynthesis.resume(); } }catch(e){} }, 6000); }
-function stopKeepAlive(){ if(keepAlive){ clearInterval(keepAlive); keepAlive = null; } }
+function stopKeepAlive(){ /* no keep-alive needed: we speak one short sentence at a time */ }
 
 function mkUtter(text){
   const u = new SpeechSynthesisUtterance(text);
@@ -403,27 +400,34 @@ function mkUtter(text){
   return u;
 }
 
-/* speak sentence-by-sentence; resolves only when finished, so words are never cut off */
+/* Speak one sentence at a time and resolve only when the WHOLE line has finished.
+   Each sentence has its own watchdog, so a dropped onend can't cut the next line short,
+   and nothing cancels a sentence while it is still being spoken. No pause/resume
+   keep-alive (that trick stalls onend for short chunks and caused abrupt cut-offs). */
 function sayWait(text, token){
   return new Promise(resolve=>{
     if(!voiceOn || !("speechSynthesis" in window)){ resolve(); return; }
-    let done = false;
-    const finish = ()=>{ if(done) return; done = true; stopKeepAlive(); resolve(); };
+    const chunks = (text.match(/[^.!?]+[.!?]*/g) || [text]).map(s=>s.trim()).filter(Boolean);
+    let i = 0, done = false, watchdog = null;
+    const finish = ()=>{ if(done) return; done = true; clearTimeout(watchdog); resolve(); };
     try{ speechSynthesis.cancel(); }catch(e){}
-    const chunks = text.match(/[^.!?]+[.!?]*/g) || [text];
-    let i = 0; startKeepAlive();
-    (function next(){
-      if(token !== runToken){ finish(); return; }
+    function speakNext(){
+      if(done) return;
+      if(token !== runToken){ finish(); return; }        // user skipped/stopped
       if(i >= chunks.length){ finish(); return; }
-      const u = mkUtter(chunks[i++].trim());
-      u.onend = next; u.onerror = next;
-      try{ speechSynthesis.speak(u); }catch(e){ finish(); }
-    })();
-    // safety net: never hang if the engine drops an onend event
-    setTimeout(finish, text.split(/\s+/).length * 430 + 6000);
+      const chunk = chunks[i++];
+      const u = mkUtter(chunk);
+      let advanced = false;
+      const advance = ()=>{ if(advanced) return; advanced = true; clearTimeout(watchdog); speakNext(); };
+      u.onend = advance; u.onerror = advance;
+      // generous per-sentence fallback in case the engine never fires onend
+      watchdog = setTimeout(advance, chunk.split(/\s+/).length * 900 + 3500);
+      try{ speechSynthesis.speak(u); }catch(e){ advance(); }
+    }
+    speakNext();
   });
 }
-/* fire-and-forget for short lines (letter intros) — still chunked & cut-proof */
+/* fire-and-forget for short lines (the letter intro spoken while the crayon draws) */
 function say(text){ if(voiceOn) sayWait(text, runToken); }
 
 /* gentle, teacher-style lines so it sounds like a caring teacher, not a robot */
@@ -674,7 +678,7 @@ document.getElementById("startBtn").addEventListener("click", ()=>{
   ac() && ac().resume && ac().resume();
   abcIntroSong();
   say("Let's learn our A B C's!");
-  setTimeout(runShow, 1600);
+  setTimeout(runShow, 2600);   // let the welcome line finish before the first letter
 });
 
 /* ---------- caterpillar A–Z picker ---------- */
