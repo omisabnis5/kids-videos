@@ -397,7 +397,7 @@ function stopKeepAlive(){ if(keepAlive){ clearInterval(keepAlive); keepAlive = n
 function mkUtter(text){
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "en-US";
-  u.rate = 0.86;    // calm and clear, like a teacher speaking to little ones
+  u.rate = 0.78;    // slow, calm and clear, like a teacher speaking to little ones
   u.pitch = 1.03;   // warm and human, not cartoonish
   if(chosenVoice) u.voice = chosenVoice;
   return u;

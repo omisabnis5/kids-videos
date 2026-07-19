@@ -356,7 +356,7 @@ function speakStory(text, token, onDone){
     if(i >= chunks.length){ stopKeepAlive(); if(onDone) onDone(); return; }
     const u = new SpeechSynthesisUtterance(chunks[i++].trim());
     u.lang = "en-US";
-    u.rate = 0.92; u.pitch = 1.02;                 // natural storyteller cadence
+    u.rate = 0.82; u.pitch = 1.02;                 // slow, natural storyteller cadence
     if(chosenVoice) u.voice = chosenVoice;
     u.onend = next;
     u.onerror = next;

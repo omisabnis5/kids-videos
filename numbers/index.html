@@ -363,7 +363,7 @@ function pickVoice(){
 if("speechSynthesis" in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
 function mkUtter(text,opts){
   const u=new SpeechSynthesisUtterance(text); u.lang="en-US";
-  u.rate=(opts&&opts.rate)||0.9; u.pitch=(opts&&opts.pitch)||1.35;
+  u.rate=(opts&&opts.rate)||0.78; u.pitch=(opts&&opts.pitch)||1.35;
   if(chosenVoice) u.voice=chosenVoice; return u;
 }
 // speak WITHOUT cancelling — cancel-then-speak drops words on Chrome, and
