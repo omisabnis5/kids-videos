@@ -411,7 +411,9 @@ function sayWait(text, token, rate){
     const chunks = (text.match(/[^.!?]+[.!?]*/g) || [text]).map(s=>s.trim()).filter(Boolean);
     let i = 0, done = false, watchdog = null;
     const finish = ()=>{ if(done) return; done = true; clearTimeout(watchdog); resolve(); };
-    try{ speechSynthesis.cancel(); }catch(e){}
+    // NOTE: we do NOT cancel() here. Cancelling chopped off whatever line was still
+    // being spoken. Lines are awaited in order, so they queue and finish cleanly.
+    // Only explicit navigation (Next/Prev/Pause/Voice-off) calls cancel().
     function speakNext(){
       if(done) return;
       if(token !== runToken){ finish(); return; }        // user skipped/stopped
@@ -602,7 +604,7 @@ function traceTurn(i, token){
     const perStroke = paths.map(()=>({ total:0, hits:0 }));
     const samples = buildSamples(paths);
     samples.forEach(s=> perStroke[s.si].total++);
-    let drawing = false, trail = null, lastBlip = 0, finished = false, done = false;
+    let drawing = false, lastBlip = 0, finished = false, done = false, cursor = null;
 
     banner.innerHTML = `<span class="pop-in">✏️ Your turn! Trace the <b style="color:${color}">${L.ch}</b> with your finger</span>`;
     say(`Now you try. Trace the ${L.ch} with your finger.`);
@@ -636,21 +638,18 @@ function traceTurn(i, token){
         if(!finished && perStroke.every(ps=> ps.hits / ps.total >= 0.85)){ finished = true; success(); }
       }
     }
-    function addTrailPoint(x, y){
-      if(!trail){
-        trail = el("path",{d:`M${x} ${y}`, fill:"none", stroke:color, "stroke-width":6,
-                           "stroke-linecap":"round","stroke-linejoin":"round", opacity:.5});
-        board.appendChild(trail);
-      } else {
-        trail.setAttribute("d", trail.getAttribute("d") + ` L${x} ${y}`);
-      }
+    // a little finger-cursor that follows the touch (does NOT leave a line)
+    function moveCursor(x, y){
+      if(!cursor){ cursor = el("circle",{r:4, fill:color, stroke:"#fff", "stroke-width":1.2, opacity:.9}); board.appendChild(cursor); }
+      cursor.setAttribute("cx", x); cursor.setAttribute("cy", y);
     }
-    function onDown(e){ if(!e.isPrimary) return; e.preventDefault(); drawing = true; trail = null;
+    function hideCursor(){ if(cursor){ cursor.remove(); cursor = null; } }
+    function onDown(e){ if(!e.isPrimary) return; e.preventDefault(); drawing = true;
       try{ board.setPointerCapture(e.pointerId); }catch(_){}
-      const p = toSVG(e); if(p){ addTrailPoint(p.x, p.y); process(p.x, p.y); } }
+      const p = toSVG(e); if(p){ moveCursor(p.x, p.y); process(p.x, p.y); } }
     function onMove(e){ if(!drawing || !e.isPrimary) return; e.preventDefault();
-      const p = toSVG(e); if(p){ addTrailPoint(p.x, p.y); process(p.x, p.y); } }
-    function onUp(e){ if(!e.isPrimary) return; drawing = false; trail = null; }
+      const p = toSVG(e); if(p){ moveCursor(p.x, p.y); process(p.x, p.y); } }
+    function onUp(e){ if(!e.isPrimary) return; drawing = false; hideCursor(); }
     const opt = { signal:ctrl.signal };
     board.addEventListener("pointerdown", onDown, opt);
     board.addEventListener("pointermove", onMove, opt);
@@ -706,8 +705,8 @@ async function playLetter(i, token){
   const sentence = SENTENCES[L.ch] || "";
   if(voiceOn && ("speechSynthesis" in window)){
     await sayWait(`${L.ch} is for ${L.word}.`, token);
-    await wait(250, token);
-    if(sentence){ await sayWait(sentence, token, 0.6); await wait(300, token); }   // slow example sentence
+    await wait(350, token);
+    if(sentence){ await sayWait(sentence, token, 0.5); await wait(400, token); }   // extra-slow example sentence
     await sayWait(pick(PRAISES), token);
     await wait(700, token);
   } else {
