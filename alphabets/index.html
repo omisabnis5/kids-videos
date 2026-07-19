@@ -244,7 +244,7 @@ const LETTERS = [
 const SENTENCES = {
  A:"I eat a red apple.",
  B:"I can kick the ball.",
- C:"The cat says meow.",
+ C:"The cat likes to meow.",
  D:"The dog likes to run.",
  E:"The elephant is very big.",
  F:"The fish can swim.",
@@ -252,8 +252,8 @@ const SENTENCES = {
  H:"I put on my hat.",
  I:"Ice cream is cold and yummy.",
  J:"I drink my juice.",
- K:"The kite flies up high.",
- L:"The lion says roar.",
+ K:"The kite flies in the sky.",
+ L:"The lion can roar.",
  M:"The moon is in the sky.",
  N:"The bird sits in the nest.",
  O:"The orange is round and sweet.",
@@ -392,11 +392,11 @@ if("speechSynthesis" in window){ pickVoice(); speechSynthesis.onvoiceschanged = 
 
 function stopKeepAlive(){ /* no keep-alive needed: we speak one short sentence at a time */ }
 
-function mkUtter(text){
+function mkUtter(text, rate){
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "en-US";
-  u.rate = 0.78;    // slow, calm and clear, like a teacher speaking to little ones
-  u.pitch = 1.03;   // warm and human, not cartoonish
+  u.rate = rate || 0.78;   // slow, calm and clear, like a teacher speaking to little ones
+  u.pitch = 1.03;          // warm and human, not cartoonish
   if(chosenVoice) u.voice = chosenVoice;
   return u;
 }
@@ -405,7 +405,7 @@ function mkUtter(text){
    Each sentence has its own watchdog, so a dropped onend can't cut the next line short,
    and nothing cancels a sentence while it is still being spoken. No pause/resume
    keep-alive (that trick stalls onend for short chunks and caused abrupt cut-offs). */
-function sayWait(text, token){
+function sayWait(text, token, rate){
   return new Promise(resolve=>{
     if(!voiceOn || !("speechSynthesis" in window)){ resolve(); return; }
     const chunks = (text.match(/[^.!?]+[.!?]*/g) || [text]).map(s=>s.trim()).filter(Boolean);
@@ -417,7 +417,7 @@ function sayWait(text, token){
       if(token !== runToken){ finish(); return; }        // user skipped/stopped
       if(i >= chunks.length){ finish(); return; }
       const chunk = chunks[i++];
-      const u = mkUtter(chunk);
+      const u = mkUtter(chunk, rate);
       let advanced = false;
       const advance = ()=>{ if(advanced) return; advanced = true; clearTimeout(watchdog); speakNext(); };
       u.onend = advance; u.onerror = advance;
@@ -599,7 +599,7 @@ function traceTurn(i, token){
   return new Promise(resolve=>{
     const { L, paths, tip, color } = setupLetter(i);
     tip.setAttribute("visibility","hidden");           // no crayon buddy — the child is the crayon now
-    const perStroke = paths.map(p=>({ len:p.getTotalLength(), maxL:0, total:0, hits:0 }));
+    const perStroke = paths.map(()=>({ total:0, hits:0 }));
     const samples = buildSamples(paths);
     samples.forEach(s=> perStroke[s.si].total++);
     let drawing = false, trail = null, lastBlip = 0, finished = false, done = false;
@@ -623,14 +623,13 @@ function traceTurn(i, token){
         const dx = s.x - x, dy = s.y - y;
         if(dx*dx + dy*dy <= R2){
           s.hit = true; newHit = true;
-          const ps = perStroke[s.si]; ps.hits++;
-          if(s.l > ps.maxL) ps.maxL = s.l;
+          perStroke[s.si].hits++;
+          // colour the letter ONLY where the finger actually passes (no racing ahead)
+          board.appendChild(el("circle",{cx:s.x, cy:s.y, r:5, fill:color}));
           sparkleAt(s.x, s.y, color);
         }
       }
       if(newHit){
-        // colour in each stroke up to the furthest point the child has reached
-        perStroke.forEach((ps, si)=>{ paths[si].style.strokeDashoffset = String(Math.max(ps.len - ps.maxL, 0)); });
         const now = performance.now();
         if(now - lastBlip > 90){ blip(); lastBlip = now; }
         // finish only when EVERY stroke is mostly traced, so multi-stroke letters need all their strokes
@@ -702,11 +701,14 @@ async function playLetter(i, token){
     `<span class="big-emoji pop-in wiggle">${L.emoji}</span>`;
   cheer(); sprinkleStars();
   refreshChips();
-  // "A is for Apple. I eat a red apple. Great job!" — then wait for the whole line to finish
+  // "A is for Apple." — then the example sentence spoken EXTRA slowly so a 3-year-old
+  // can follow it and repeat it — then a word of praise. Wait for it all to finish.
   const sentence = SENTENCES[L.ch] || "";
-  const line = `${L.ch} is for ${L.word}. ${sentence} ${pick(PRAISES)}`;
   if(voiceOn && ("speechSynthesis" in window)){
-    await sayWait(line, token);
+    await sayWait(`${L.ch} is for ${L.word}.`, token);
+    await wait(250, token);
+    if(sentence){ await sayWait(sentence, token, 0.6); await wait(300, token); }   // slow example sentence
+    await sayWait(pick(PRAISES), token);
     await wait(700, token);
   } else {
     await wait(3800, token);
