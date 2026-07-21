@@ -204,7 +204,7 @@
 
 <div class="caterpillar" id="caterpillar" aria-label="Choose a letter"></div>
 
-<p class="grown-ups">💡 <b>For grown-ups:</b> after the crayon draws each letter, <b>✏️ My Turn</b> lets your child trace it themselves — right on the screen with a finger. The letter colors in as they go, and the numbers show where to start. Turn <b>My Turn</b> off to just watch A–Z. Little hands learn best with big, happy movements!</p>
+<p class="grown-ups">💡 <b>For grown-ups:</b> each letter is taught with <b>two picture words</b> that begin with its sound (from the Rock ’N Learn phonics song) — say them together and listen for the shared first sound. After the crayon draws, <b>✏️ My Turn</b> lets your child trace the letter on the screen with a finger; it colors in as they go, and the numbers show where to start. Turn <b>My Turn</b> off to just watch A–Z.</p>
 
 <script>
 (function(){
@@ -212,71 +212,62 @@
 
 /* ---------- letter data: stroke paths on a 100x118 grid (top line y=15, middle y=57.5, base y=100) ---------- */
 const LETTERS = [
- {ch:"A", word:"Apple", emoji:"🍎", strokes:["M50 15 L27 100","M50 15 L73 100","M36 68 L64 68"]},
- {ch:"B", word:"Ball", emoji:"⚽", strokes:["M30 15 L30 100","M30 15 C72 13 72 58 30 57.5","M30 57.5 C76 57 76 102 30 100"]},
- {ch:"C", word:"Cat", emoji:"🐱", strokes:["M74 32 C62 10 27 12 27 57.5 C27 103 62 105 74 83"]},
- {ch:"D", word:"Dog", emoji:"🐶", strokes:["M30 15 L30 100","M30 15 C80 17 80 98 30 100"]},
- {ch:"E", word:"Elephant", emoji:"🐘", strokes:["M32 15 L32 100","M32 15 L72 15","M32 57.5 L66 57.5","M32 100 L72 100"]},
- {ch:"F", word:"Fish", emoji:"🐟", strokes:["M32 15 L32 100","M32 15 L72 15","M32 57.5 L66 57.5"]},
- {ch:"G", word:"Grapes", emoji:"🍇", strokes:["M74 32 C62 10 27 12 27 57.5 C27 100 60 106 73 86 L73 64 L52 64"]},
- {ch:"H", word:"Hat", emoji:"🎩", strokes:["M30 15 L30 100","M70 15 L70 100","M30 57.5 L70 57.5"]},
- {ch:"I", word:"Ice cream", emoji:"🍦", strokes:["M50 15 L50 100","M32 15 L68 15","M32 100 L68 100"]},
- {ch:"J", word:"Juice", emoji:"🧃", strokes:["M64 15 L64 78 C64 102 30 102 29 80"]},
- {ch:"K", word:"Kite", emoji:"🪁", strokes:["M30 15 L30 100","M70 15 L30 57.5","M42 47 L70 100"]},
- {ch:"L", word:"Lion", emoji:"🦁", strokes:["M32 15 L32 100","M32 100 L72 100"]},
- {ch:"M", word:"Moon", emoji:"🌙", strokes:["M25 15 L25 100","M25 15 L50 72","M50 72 L75 15","M75 15 L75 100"]},
- {ch:"N", word:"Nest", emoji:"🪺", strokes:["M30 15 L30 100","M30 15 L70 100","M70 15 L70 100"]},
- {ch:"O", word:"Orange", emoji:"🍊", strokes:["M50 15 C16 15 16 100 50 100 C84 100 84 15 50 15"]},
- {ch:"P", word:"Penguin", emoji:"🐧", strokes:["M30 15 L30 100","M30 15 C74 14 74 61 30 60"]},
- {ch:"Q", word:"Queen", emoji:"👑", strokes:["M50 15 C16 15 16 100 50 100 C84 100 84 15 50 15","M60 78 L80 104"]},
- {ch:"R", word:"Rainbow", emoji:"🌈", strokes:["M30 15 L30 100","M30 15 C74 14 74 61 30 60","M30 60 L70 100"]},
- {ch:"S", word:"Sun", emoji:"☀️", strokes:["M71 30 C58 8 28 14 29 35 C30 54 69 57 70 79 C71 102 38 108 27 87"]},
- {ch:"T", word:"Train", emoji:"🚂", strokes:["M50 15 L50 100","M25 15 L75 15"]},
- {ch:"U", word:"Umbrella", emoji:"☂️", strokes:["M28 15 L28 70 C28 103 72 103 72 70 L72 15"]},
- {ch:"V", word:"Violin", emoji:"🎻", strokes:["M27 15 L50 100","M73 15 L50 100"]},
- {ch:"W", word:"Whale", emoji:"🐳", strokes:["M20 15 L34 100 L50 42 L66 100 L80 15"]},
- {ch:"X", word:"Xylophone", emoji:"🎵", strokes:["M28 15 L72 100","M72 15 L28 100"]},
- {ch:"Y", word:"Yo-yo", emoji:"🪀", strokes:["M28 15 L50 57","M72 15 L50 57","M50 57 L50 100"]},
- {ch:"Z", word:"Zebra", emoji:"🦓", strokes:["M28 15 L72 15 L28 100 L72 100"]}
+ {ch:"A", word:"Apple",  word2:"Alligator", emoji:"🍎", strokes:["M50 15 L27 100","M50 15 L73 100","M36 68 L64 68"]},
+ {ch:"B", word:"Bug",    word2:"Ball",      emoji:"🐛", strokes:["M30 15 L30 100","M30 15 C72 13 72 58 30 57.5","M30 57.5 C76 57 76 102 30 100"]},
+ {ch:"C", word:"Cat",    word2:"Cake",      emoji:"🐱", strokes:["M74 32 C62 10 27 12 27 57.5 C27 103 62 105 74 83"]},
+ {ch:"D", word:"Dog",    word2:"Duck",      emoji:"🐶", strokes:["M30 15 L30 100","M30 15 C80 17 80 98 30 100"]},
+ {ch:"E", word:"Egg",    word2:"Elf",       emoji:"🥚", strokes:["M32 15 L32 100","M32 15 L72 15","M32 57.5 L66 57.5","M32 100 L72 100"]},
+ {ch:"F", word:"Fork",   word2:"Food",      emoji:"🍴", strokes:["M32 15 L32 100","M32 15 L72 15","M32 57.5 L66 57.5"]},
+ {ch:"G", word:"Girl",   word2:"Guitar",    emoji:"👧", strokes:["M74 32 C62 10 27 12 27 57.5 C27 100 60 106 73 86 L73 64 L52 64"]},
+ {ch:"H", word:"Hat",    word2:"Hamster",   emoji:"🎩", strokes:["M30 15 L30 100","M70 15 L70 100","M30 57.5 L70 57.5"]},
+ {ch:"I", word:"Insect", word2:"Iguana",    emoji:"🐜", strokes:["M50 15 L50 100","M32 15 L68 15","M32 100 L68 100"]},
+ {ch:"J", word:"Jet",    word2:"Joker",     emoji:"✈️", strokes:["M64 15 L64 78 C64 102 30 102 29 80"]},
+ {ch:"K", word:"Kid",    word2:"King",      emoji:"🧒", strokes:["M30 15 L30 100","M70 15 L30 57.5","M42 47 L70 100"]},
+ {ch:"L", word:"Lion",   word2:"Log",       emoji:"🦁", strokes:["M32 15 L32 100","M32 100 L72 100"]},
+ {ch:"M", word:"Man",    word2:"Monkey",    emoji:"🧑", strokes:["M25 15 L25 100","M25 15 L50 72","M50 72 L75 15","M75 15 L75 100"]},
+ {ch:"N", word:"Nut",    word2:"Nest",      emoji:"🥜", strokes:["M30 15 L30 100","M30 15 L70 100","M70 15 L70 100"]},
+ {ch:"O", word:"Olives", word2:"Octopus",   emoji:"🫒", strokes:["M50 15 C16 15 16 100 50 100 C84 100 84 15 50 15"]},
+ {ch:"P", word:"Pig",    word2:"Pool",      emoji:"🐷", strokes:["M30 15 L30 100","M30 15 C74 14 74 61 30 60"]},
+ {ch:"Q", word:"Quilt",  word2:"Queen",     emoji:"👑", strokes:["M50 15 C16 15 16 100 50 100 C84 100 84 15 50 15","M60 78 L80 104"]},
+ {ch:"R", word:"Rocket", word2:"Raccoon",   emoji:"🚀", strokes:["M30 15 L30 100","M30 15 C74 14 74 61 30 60","M30 60 L70 100"]},
+ {ch:"S", word:"Sailor", word2:"Sun",       emoji:"⛵", strokes:["M71 30 C58 8 28 14 29 35 C30 54 69 57 70 79 C71 102 38 108 27 87"]},
+ {ch:"T", word:"Tiger",  word2:"Tent",      emoji:"🐯", strokes:["M50 15 L50 100","M25 15 L75 15"]},
+ {ch:"U", word:"Up",     word2:"Umbrella",  emoji:"⬆️", strokes:["M28 15 L28 70 C28 103 72 103 72 70 L72 15"]},
+ {ch:"V", word:"Van",    word2:"Vegetable", emoji:"🚐", strokes:["M27 15 L50 100","M73 15 L50 100"]},
+ {ch:"W", word:"Wagon",  word2:"Water",     emoji:"💧", strokes:["M20 15 L34 100 L50 42 L66 100 L80 15"]},
+ {ch:"X", word:"Fox",    word2:"Box",       emoji:"🦊", strokes:["M28 15 L72 100","M72 15 L28 100"]},
+ {ch:"Y", word:"Yarn",   word2:"Yak",       emoji:"🧶", strokes:["M28 15 L50 57","M72 15 L50 57","M50 57 L50 100"]},
+ {ch:"Z", word:"Zebra",  word2:"Zipper",    emoji:"🦓", strokes:["M28 15 L72 15 L28 100 L72 100"]}
 ];
 
 /* a simple sentence for each word — short and clear, for a 3-year-old to learn English */
 const SENTENCES = {
  A:"I eat a red apple.",
- B:"I can kick the ball.",
+ B:"The bug is very small.",
  C:"The cat likes to meow.",
  D:"The dog likes to run.",
- E:"The elephant is very big.",
- F:"The fish can swim.",
- G:"I like to eat grapes.",
+ E:"The egg is round and white.",
+ F:"I eat with my fork.",
+ G:"The girl likes to play.",
  H:"I put on my hat.",
- I:"Ice cream is cold and yummy.",
- J:"I drink my juice.",
- K:"The kite flies in the sky.",
+ I:"The insect is very tiny.",
+ J:"The jet flies up high.",
+ K:"The kid likes to play.",
  L:"The lion can roar.",
- M:"The moon is in the sky.",
- N:"The bird sits in the nest.",
- O:"The orange is round and sweet.",
- P:"The penguin can waddle.",
- Q:"The queen wears a crown.",
- R:"The rainbow has many colors.",
- S:"The sun is warm and bright.",
- T:"The train goes choo choo.",
- U:"I use my umbrella in the rain.",
- V:"The violin makes music.",
- W:"The whale is very big.",
- X:"I can play the xylophone.",
- Y:"The yo-yo goes up and down.",
+ M:"The man is very tall.",
+ N:"The nut is small and hard.",
+ O:"I like to eat olives.",
+ P:"The pig says oink.",
+ Q:"A quilt keeps me warm.",
+ R:"The rocket flies to the moon.",
+ S:"The sailor sails a boat.",
+ T:"The tiger has orange stripes.",
+ U:"I can jump up high.",
+ V:"The van has four wheels.",
+ W:"I pull my red wagon.",
+ X:"The fox is quick and clever.",
+ Y:"The cat plays with yarn.",
  Z:"The zebra has black and white stripes."
-};
-
-/* the letter SOUND (phonics), matched to each picture word — said rhythmically:
-   "aa, aa, apple!"  "buh, buh, ball!"  These are TTS-friendly spellings that
-   approximate each sound. */
-const PHONICS = {
- A:"aa", B:"buh", C:"kuh", D:"duh", E:"eh", F:"fuh", G:"guh", H:"huh", I:"eye",
- J:"juh", K:"kuh", L:"luh", M:"muh", N:"nuh", O:"aw", P:"puh", Q:"kwuh", R:"ruh",
- S:"suh", T:"tuh", U:"uh", V:"vuh", W:"wuh", X:"zuh", Y:"yuh", Z:"zuh"
 };
 
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -703,18 +694,17 @@ async function playLetter(i, token){
   doneSet.add(i);
   liveG.classList.add("dance");
   popSound();
-  const phon = PHONICS[L.ch] || L.ch;
+  // teach the SOUND with two picture words (from the phonics song) — the shared first
+  // sound is what the child hears. Real words, so the voice pronounces them correctly.
   banner.innerHTML =
     `<span class="pop-in" style="color:${color}; font-size:1.6em">${L.ch}</span>` +
-    `<span class="pop-in">${phon}, ${phon}, ${L.word}!</span>` +
+    `<span class="pop-in">${L.word}, ${L.word2}!</span>` +
     `<span class="big-emoji pop-in wiggle">${L.emoji}</span>`;
   cheer(); sprinkleStars();
   refreshChips();
-  // rhythmic phonics — "aa, aa, apple!" — then the example sentence spoken EXTRA
-  // slowly so a 3-year-old can follow and repeat it — then a word of praise.
   const sentence = SENTENCES[L.ch] || "";
   if(voiceOn && ("speechSynthesis" in window)){
-    await sayWait(`${phon}, ${phon}, ${L.word}!`, token, 0.75);   // sound it out to a little beat
+    await sayWait(`${L.word}. ${L.word2}.`, token, 0.72);   // two words, sounded out to a gentle beat
     await wait(350, token);
     if(sentence){ await sayWait(sentence, token, 0.5); await wait(400, token); }   // extra-slow example sentence
     await sayWait(pick(PRAISES), token);
